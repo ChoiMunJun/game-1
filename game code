@@ -25,7 +25,6 @@ void setup(){
   n1 = n2 = n3 = n;
 
   for (int i = 0; i < n; i++) {
-    // Random positions within the canvas
     x1[i] = random(width);
     y1[i] = random(height);
     x2[i] = random(width);
