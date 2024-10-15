@@ -1,0 +1,196 @@
+float [] x1, x2, x3, y1, y2, y3, vx1, vx2, vx3, vy1, vy2, vy3;
+float d = 1;
+float vd = 1;
+float [] hvx1, hvx2, hvx3, hvy1, hvy2, hvy3;
+int n = 10;
+float n1, n2, n3;
+float game_state;
+boolean hardmode = false;
+
+int frame, time, game_timer;
+int start_frame;
+float clear_time = 0;
+
+void setup(){
+  size(1000,500);
+  frameRate(60);
+  
+  game_state = n;
+  x1 = new float[n];  x2 = new float[n];  x3 = new float[n];
+  y1 = new float[n];  y2 = new float[n];  y3 = new float[n];
+  vx1 = new float[n];  vx2 = new float[n];  vx3 = new float[n];
+  vy1 = new float[n];  vy2 = new float[n];  vy3 = new float[n];
+  hvx1 = new float[n];  hvx2 = new float[n];  hvx3 = new float[n];
+  hvy1 = new float[n];  hvy2 = new float[n];  hvy3 = new float[n];
+  n1 = n2 = n3 = n;
+
+  for (int i = 0; i < n; i++) {
+    // Random positions within the canvas
+    x1[i] = random(width);
+    y1[i] = random(height);
+    x2[i] = random(width);
+    y2[i] = random(height);
+    x3[i] = random(width);
+    y3[i] = random(height);
+    
+    vx1[i] = random(-2*vd, 2*vd);
+    vy1[i] = random(-2*vd, 2*vd);
+    vx2[i] = random(-2*vd, 2*vd);
+    vy2[i] = random(-2*vd, 2*vd);
+    vx3[i] = random(-2*vd, 2*vd);
+    vy3[i] = random(-2*vd, 2*vd);
+    
+    hvx1[i] = 2*vx1[i];
+    hvx2[i] = 2*vx2[i];
+    hvx3[i] = 2*vx3[i];
+    hvy1[i] = 2*vx1[i];
+    hvy2[i] = 2*vy2[i];
+    hvy3[i] = 2*vy3[i];
+    
+    
+  }
+
+  game_state = 0;
+  
+  start_frame = frameCount;
+
+}
+
+void draw(){
+  background(255);
+  drawKHU();
+
+  for (int i = 0; i < n; i++) {
+    x1[i] += vx1[i];
+    y1[i] += vy1[i];
+    x2[i] += vx2[i];
+    y2[i] += vy2[i];
+    x3[i] += vx3[i];
+    y3[i] += vy3[i];
+    
+    if (x1[i] < 0 || x1[i] > width) vx1[i] *= -1;
+    if (y1[i] < 0 || y1[i] > height) vy1[i] *= -1;
+    if (x2[i] < 0 || x2[i] > width) vx2[i] *= -1;
+    if (y2[i] < 0 || y2[i] > height) vy2[i] *= -1;
+    if (x3[i] < 0 || x3[i] > width) vx3[i] *= -1;
+    if (y3[i] < 0 || y3[i] > height) vy3[i] *= -1;
+  }
+  
+  if (game_state == 0) {
+    textSize(32);
+    fill(0);
+    text("Select your character:", 350, 50);
+    text("1: Zzanggu", 400, 150);
+    drawzzanggu(300, 140, 0.3 * d, 1);
+    fill(0);
+    text("2: Pig", 400, 250);
+    drawPig(290, 230, 0.9 * d, 1);
+    fill(0);
+    text("3: Awesome Face", 400, 350);
+    awesome_face(300, 350, 0.8 * d, 1);
+    
+  textSize(15);
+    fill(210,210,210);
+    text("Press + to enter hard mode",820,490);
+    fill(0);
+    textSize(32);
+   
+  if(hardmode == true){
+    fill(255,0,0);
+    text("Hard Mode", 830, 35);
+    fill(255);
+    vx1 = hvx1;
+    vx2 = hvx2;
+    vx3 = hvx3;
+    vy1 = hvy1;
+    vy2 = hvy2;
+    vy3 = hvy3;
+  }
+    
+    if (keyPressed) {
+      if (key == '1' || key == '2' || key == '3') {
+        game_state = int(key) - 48;
+        start_frame = frameCount;
+      }
+    }
+  } else if (game_state >= 1 && game_state <= 3) {
+   
+    for (int i = 0; i < n; i++) {
+    drawzzanggu(x1[i], y1[i], 0.3*d, 1);      
+    drawPig(x2[i], y2[i], 0.9*d, 1);          
+    awesome_face(x3[i], y3[i], 0.8*d, 1);     
+  }
+    
+    game_timer = (frameCount - start_frame) / 60;
+    textSize(24);
+    fill(0);
+    text("Time: " + game_timer + "s", 20, 30);
+    text("Click to catch!", 20, 60);
+    
+    if ((game_state == 1 && n1 == 0) || (game_state == 2 && n2 == 0) || (game_state == 3 && n3 == 0)) {
+      game_state = 4;
+      clear_time = game_timer;
+    }
+  } else if (game_state == 4) {
+    // Game clear screen
+    textSize(48);
+    fill(0);
+    text("Game Clear!", 350, 200);
+    textSize(32);
+    text("Your time: " + clear_time + "s", 380, 250);
+    text("Press 'R' to restart", 360, 300);
+    
+    if (keyPressed && key == 'r') {
+      d *= 0.7;
+      vd *= 1.3;
+      setup(); // Reset the game
+      
+    }
+  }
+}
+
+void mousePressed(){
+  for (int i = 0; i < n; i++) {
+        if (game_state == 1 && dist(mouseX, mouseY, x1[i], y1[i]) < 50*d) {
+          n1--;
+          x1[i] = -100; // Move off-screen
+        } else if (game_state == 2 && dist(mouseX, mouseY, x2[i], y2[i]) < 50*d) {
+          n2--;
+          x2[i] = -100; // Move off-screen
+        } else if (game_state == 3 && dist(mouseX, mouseY, x3[i], y3[i]) < 50*d) {
+          n3--;
+          x3[i] = -100; // Move off-screen
+        }
+      }
+}
+
+void keyTyped(){
+  if (key == '+') hardmode = true;
+}
+    
+
+void drawKHU() {
+  ////k
+  fill(255,191,191);
+  stroke(255,191,191);
+  quad(120, 100, 180, 100, 180, 400, 120, 400);
+  quad(280, 130, 320, 170, 180, 250, 140, 210);
+  quad(140, 290, 180, 250, 320, 330, 280, 370);
+
+  ////h
+  fill(255,191,191);
+  stroke(255,191,191);
+  quad(370, 100, 430, 100, 430, 400, 370, 400);
+  quad(400, 280, 400, 220, 600, 220, 600, 280);
+  quad(570, 100, 630, 100, 630, 400, 570, 400);
+  
+  ////u
+  fill(255,191,191);
+  stroke(255,191,191);
+  quad(670,100,730,100,730,350,670,350);
+  arc(800,350,260,200,0,PI);
+  quad(870,100,930,100,930,350,870,350);
+  fill(255);
+  stroke(255);
+  arc(800,350,136,100,0,PI);
+}
